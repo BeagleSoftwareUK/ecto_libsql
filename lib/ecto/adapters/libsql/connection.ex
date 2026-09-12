@@ -1217,6 +1217,13 @@ defmodule Ecto.Adapters.LibSql.Connection do
     [expr(arg, sources, query) | " IS NULL"]
   end
 
+  # Ecto plans a negative literal as unary minus, so `ago(14, "day")` arrives as
+  # `{:datetime_add, _, [_, {:-, _, [14]}, "day"]}` once the query is cached. Without
+  # this clause the count falls through to the catch-all "?" and the interval is lost.
+  defp expr({:-, _, [arg]}, sources, query) do
+    [?-, ?(, expr(arg, sources, query), ?)]
+  end
+
   defp expr({:not, _, [arg]}, sources, query) do
     ["NOT (", expr(arg, sources, query), ?)]
   end
