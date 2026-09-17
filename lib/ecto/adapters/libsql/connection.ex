@@ -1252,7 +1252,15 @@ defmodule Ecto.Adapters.LibSql.Connection do
   # no rows, and `select: s.count + 1` returns nil. Parenthesised so precedence
   # survives nesting.
   defp expr({op, _, [left, right]}, sources, query) when op in [:+, :-, :*, :/] do
-    [?(, expr(left, sources, query), ?\s, Atom.to_string(op), ?\s, expr(right, sources, query), ?)]
+    [
+      ?(,
+      expr(left, sources, query),
+      ?\s,
+      Atom.to_string(op),
+      ?\s,
+      expr(right, sources, query),
+      ?)
+    ]
   end
 
   # Boolean logic
