@@ -407,7 +407,6 @@ defmodule EctoLibSql do
   defp savepoint_error(%{__exception__: true} = reason), do: reason
   defp savepoint_error(reason), do: %RuntimeError{message: inspect(reason)}
 
-
   @impl true
   @doc """
   Closes the query. Currently a no-op as queries are stateless.
