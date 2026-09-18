@@ -52,7 +52,18 @@ defmodule EctoLibSql.EctoSandboxSavepointTest do
 
     on_exit(fn ->
       Sandbox.stop_owner(owner)
-      if Process.alive?(pid), do: Supervisor.stop(pid)
+
+      # Process.alive?/1 is a point-in-time check: stopping the owner above can take
+      # the repo supervisor down while we are still on this line, and Supervisor.stop/1
+      # then exits with :noproc. Catch it rather than failing an otherwise passing test.
+      if Process.alive?(pid) do
+        try do
+          :ok = Supervisor.stop(pid)
+        catch
+          :exit, _ -> :ok
+        end
+      end
+
       Process.sleep(50)
       for f <- Path.wildcard(test_db <> "*"), do: File.rm(f)
     end)
